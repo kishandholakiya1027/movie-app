@@ -10,3 +10,12 @@
 .childrenClass::-webkit-scrollbar {
   display: none;
 }
+
+input,input:focus {
+  --tw-bg-opacity: 1;
+  background-color: rgb(22 78 99 / var(--tw-bg-opacity));
+  border: none !important; 
+  color:white !important;
+  outline: none !important;
+  margin-left: 10px;
+}

@@ -1,9 +1,30 @@
-import {Group} from "@/components/Group";
+import { Group } from "@/components/Group";
 import GroupWrapper from "@/components/GroupWrapper";
 import BackgroundComponent from "@/components/common/backgroundComponent";
-import React from "react";
+import { setToken } from "@/utils/auth";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 
 const SignIn = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const router = useRouter()
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users/login`, {
+      email, password
+    }).then(res => {
+      if (res?.status === 200) {
+        setToken(res?.data?.token)
+        router.push("/")
+      }
+
+    }).catch(err => {
+      console.log(err)
+    })
+  }
+
   return (
     <>
       {/* <div className="relative bg-darkslategray w-full h-[800px] overflow-hidden text-center text-sm text-white font-h1">
@@ -88,6 +109,7 @@ const SignIn = () => {
               className="input"
               aria-label="Email"
               aria-role="textbox"
+              onChange={(e) => setEmail(e?.target?.value)}
             />
           </div>
           <div className="text-white text-center text-sm leading-6 whitespace-nowrap bg-cyan-900 self-center w-[300px] max-w-full justify-center mt-6 pl-5 pr-16 py-5 rounded-xl items-start max-md:pr-5">
@@ -98,6 +120,7 @@ const SignIn = () => {
               className="input"
               aria-label="Password"
               aria-role="textbox"
+              onChange={(e) => setPassword(e?.target?.value)}
             />
           </div>
           <div className="self-center flex items-stretch gap-2.5 mt-7 px-5">
@@ -115,7 +138,7 @@ const SignIn = () => {
             </label>
           </div>
 
-          <button className="button text-white text-center text-base font-bold leading-6 whitespace-nowrap items-center bg-emerald-400 self-center w-[300px] max-w-full justify-center mt-7 px-16 py-4 rounded-xl max-md:px-5">
+          <button onClick={handleSubmit} className="button text-white text-center text-base font-bold leading-6 whitespace-nowrap items-center bg-emerald-400 self-center w-[300px] max-w-full justify-center mt-7 px-16 py-4 rounded-xl max-md:px-5">
             Login
           </button>
         </form>
