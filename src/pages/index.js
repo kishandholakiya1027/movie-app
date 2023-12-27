@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Cookies from 'universal-cookie';
+import { API_URL } from "../../config";
 const Index = ({ movies }) => {
   const router = useRouter()
   const [moviesData, setMoviesData] = useState([]);
