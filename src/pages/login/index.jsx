@@ -4,12 +4,23 @@ import BackgroundComponent from "@/components/common/backgroundComponent";
 import { setToken } from "@/utils/auth";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter()
+
+  useEffect(() => {
+    const remember = localStorage.getItem("rememberMe")
+    if(remember){
+      setEmail(localStorage.getItem("email"))
+      setPassword(localStorage.getItem("password"))
+      setRememberMe(true)
+    }
+  }, [])
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users/login`, {
@@ -109,6 +120,7 @@ const SignIn = () => {
               className="input"
               aria-label="Email"
               aria-role="textbox"
+              value={email}
               onChange={(e) => setEmail(e?.target?.value)}
             />
           </div>
@@ -120,6 +132,7 @@ const SignIn = () => {
               className="input"
               aria-label="Password"
               aria-role="textbox"
+              value={password}
               onChange={(e) => setPassword(e?.target?.value)}
             />
           </div>
@@ -127,8 +140,15 @@ const SignIn = () => {
             <input
               type="checkbox"
               id="remember-me"
+              checked={rememberMe}
               className="bg-cyan-900 flex w-[18px] shrink-0 h-[17px] flex-col rounded-md"
               aria-label="Remember me checkbox"
+              onClick={(e)=>{setRememberMe(!rememberMe)
+              localStorage.setItem("rememberMe", e?.target?.checked)
+              localStorage.setItem("email", email)
+              localStorage.setItem("password", password)
+              }
+              }
             />
             <label
               htmlFor="remember-me"

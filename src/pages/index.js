@@ -1,7 +1,7 @@
 import BackgroundComponent from "@/components/common/backgroundComponent";
 import EmptyComponent from "@/components/movie/EmptyComponent";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Cookies from 'universal-cookie';
@@ -56,8 +56,10 @@ const Index = ({ movies }) => {
                   className="aspect-square cursor-pointer object-contain object-center w-8 overflow-hidden self-center shrink-0 max-w-full my-auto"
                 />
               </div>
-              <div className="flex items-center gap-3 mt-1 px-5 self-start">
-                <div className="text-white text-center text-base font-bold leading-6 my-auto">
+              <div className="flex items-center gap-3 mt-1 px-5 self-start cursor-pointer" onClick={() => {
+                  localStorage.setItem("token", "");
+                  router.reload("/")}}>
+                <div className="text-white text-center text-base font-bold leading-6 my-auto cursor-pointer" >
                   Logout
                 </div>
                 <img

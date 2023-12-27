@@ -72,7 +72,7 @@ const Index = (props) => {
     <BackgroundComponent>
       <header className="flex w-[1200px] max-w-full flex-col items-stretch  mt-20 max-md:mt-10">
         <h1 className="text-white text-center text-5xl font-semibold leading-[56.16px] max-md:max-w-full max-md:text-4xl">
-          Create a new movie{" "}
+        {router?.query?.id === "new" ? "Create a new movie" : "Edit"}
         </h1>
         <div className="mt-28 max-md:max-w-full max-md:mt-10">
           <div className="gap-5 flex max-md:flex-col max-md:items-stretch max-md:gap-0">
@@ -136,7 +136,7 @@ const Index = (props) => {
                     Cancel
                   </button>
                   <button onClick={handleSubmit} className="text-white text-center text-base font-bold leading-6 whitespace-nowrap justify-center items-stretch bg-emerald-400 grow px-16 py-6 rounded-xl max-md:px-5">
-                    Submit
+                  {router?.query?.id === "new" ? "Submit" : "Update"}
                   </button>
                 </div>
               </div>
