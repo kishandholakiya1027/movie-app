@@ -5,10 +5,13 @@ import { setToken } from "@/utils/auth";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState({});
+  console.log("🚀 ~ file: index.jsx:13 ~ SignIn ~ error:", error)
   const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter()
 
@@ -23,17 +26,33 @@ const SignIn = () => {
   
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users/login`, {
-      email, password
-    }).then(res => {
-      if (res?.status === 200) {
-        setToken(res?.data?.token)
-        router.push("/")
-      }
+    let err = {...error}
+    const  regex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    if(!email && !password){
+      err = {...err,email:true,password:true}
+    }
+    else if(!email || !regex.test(email)){
+    err = {...err,email:true}
+    }else if(!password){
+      err = {...err,password:true}
+    }else {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users/login`, {
+        email, password
+      }).then(res => {
+        console.log("🚀 ~ file: index.jsx:41 ~ handleSubmit ~ res:", res)
+        if (res?.status === 200) {
+          setToken(res?.data?.token)
+          router.push("/")
+        }
+  
+      }).catch(err => {
+        toast(err?.response?.data?.message||err?.message)
+        console.log(err)
+      })
 
-    }).catch(err => {
-      console.log(err)
-    })
+    }
+    setError(err)
+
   }
 
   return (
@@ -121,9 +140,12 @@ const SignIn = () => {
               aria-label="Email"
               aria-role="textbox"
               value={email}
-              onChange={(e) => setEmail(e?.target?.value)}
+              onChange={(e) => {
+                setError({...error,email:false})
+                setEmail(e?.target?.value)}}
             />
           </div>
+          <p className="text-[#ff0000] text-xs w-[100%] flex justify-start ms-4">{error?.email ? "Please enter a valid email":""}</p>
           <div className="text-white text-center text-sm leading-6 whitespace-nowrap bg-cyan-900 self-center w-[300px] max-w-full justify-center mt-6 pl-5 pr-16 py-5 rounded-xl items-start max-md:pr-5">
             <label htmlFor="password">Password</label>
             <input
@@ -133,9 +155,13 @@ const SignIn = () => {
               aria-label="Password"
               aria-role="textbox"
               value={password}
-              onChange={(e) => setPassword(e?.target?.value)}
+              onChange={(e) => {
+                setError({...error,password:false})
+                setPassword(e?.target?.value)}}
             />
           </div>
+          <p className="text-[#ff0000] text-xs w-[100%] flex justify-start ms-4">{error?.password ? "Please enter a valid password":""}</p>
+
           <div className="self-center flex items-stretch gap-2.5 mt-7 px-5">
             <input
               type="checkbox"
@@ -158,7 +184,7 @@ const SignIn = () => {
             </label>
           </div>
 
-          <button onClick={handleSubmit} className="button text-white text-center text-base font-bold leading-6 whitespace-nowrap items-center bg-emerald-400 self-center w-[300px] max-w-full justify-center mt-7 px-16 py-4 rounded-xl max-md:px-5">
+          <button onClick={handleSubmit} className="button text-white cursor-pointer text-center text-base font-bold leading-6 whitespace-nowrap items-center bg-emerald-400 self-center w-[300px] max-w-full justify-center mt-7 px-16 py-4 rounded-xl max-md:px-5">
             Login
           </button>
         </form>

@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 
 const Index = (props) => {
   const [movie, setMovie] = useState()
+  const [error, setError] = useState({})
   const [imageUrl, setImageUrl] = useState()
   const fileRef = useRef()
   const router = useRouter()
@@ -15,54 +16,68 @@ const Index = (props) => {
   };
 
   useEffect(() => {
-    if(router?.query?.id !== "new"){
+    if (router?.query?.id !== "new") {
       geOneMovie()
     }
   }, [router?.query])
-  
+
   const geOneMovie = async () => {
     await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/movies/${router?.query?.id}`, {
       headers: {
         "Authorization": localStorage.getItem("token")
       }
-  }).then(res => {
-    if(res?.status === 200){
-      let data = {...res?.data}
-      delete data["image"]
-      setMovie(data)
-      setImageUrl(`${process.env.NEXT_PUBLIC_API_URL}${res?.data?.image}`)
-    }
-  }).catch(err => {
-    
-  })
-}
+    }).then(res => {
+      if (res?.status === 200) {
+        let data = { ...res?.data }
+        delete data["image"]
+        setMovie(data)
+        setImageUrl(`${process.env.NEXT_PUBLIC_API_URL}${res?.data?.image}`)
+      }
+    }).catch(err => {
+
+    })
+  }
 
   const handleSubmit = async () => {
-    const formdata = new FormData()
-    formdata.append("title", movie?.title)
-    formdata.append("publish_year", movie?.publish_year)
-    if(movie?.image){
-      formdata.append("image", movie?.image)
-    }
-    if(!movie?.title || !movie?.publish_year || !imageUrl){
-      toast("Please fill all the fields") 
+    let err = { ...error }
+    if (!movie?.title || !movie?.publish_year || !imageUrl) {
+      if (!movie?.title) {
+        err = { ...err, title: true }
+      }
+      if (!movie?.publish_year || !/[0-9]{4}/.test(movie?.publish_year?.toString())) {
+        err = { ...err, publish_year: true }
+      }
+      if (!imageUrl) {
+        err = { ...err, image: true }
+      }
+      setError(err)
       return
     }
-    if(router?.query?.id === "new"){
+    const formdata = new FormData()
+    formdata.append("title", movie?.title)
+    formdata.append("publish_year", movie?.publish_year?.toString())
+    if (movie?.image) {
+      formdata.append("image", movie?.image)
+    }
+    if (router?.query?.id === "new") {
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/movies/add`, formdata, { headers: { "Content-Type": "multipart/form-data", "Authorization": localStorage.getItem("token") } }).then(res => {
         if (res?.status === 200) {
           router.push("/")
         }
       }).catch(err => {
-  
+        toast(err?.response?.data?.message||err?.message)
+        console.log(err)
       })
 
-    } else{
+    } else {
       await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/movies/edit/${router?.query?.id}`, formdata, { headers: { "Content-Type": "multipart/form-data", "Authorization": localStorage.getItem("token") } }).then(res => {
         if (res?.status === 200) {
           router.push("/")
         }
-      }).catch(err => {})
+      }).catch(err => { 
+        toast(err?.response?.data?.message||err?.message)
+        console.log(err)
+      })
     }
 
     // Add your submit logic here
@@ -70,9 +85,9 @@ const Index = (props) => {
 
   return (
     <BackgroundComponent>
-      <header className="flex w-[1200px] max-w-full flex-col items-stretch  mt-20 max-md:mt-10">
+      <header className="flex w-[1200px] max-md:w-[500px] max-sm:w-[400px] max-lg:w-[880px] max-xl:w-[1000px] max-w-full flex-col items-stretch  mt-20 max-md:mt-10">
         <h1 className="text-white text-center text-5xl font-semibold leading-[56.16px] max-md:max-w-full max-md:text-4xl">
-        {router?.query?.id === "new" ? "Create a new movie" : "Edit"}
+          {router?.query?.id === "new" ? "Create a new movie" : "Edit"}
         </h1>
         <div className="mt-28 max-md:max-w-full max-md:mt-10">
           <div className="gap-5 flex max-md:flex-col max-md:items-stretch max-md:gap-0">
@@ -95,13 +110,17 @@ const Index = (props) => {
                   ref={fileRef}
                   onChange={(e) => {
                     setImageUrl(window.URL.createObjectURL(e?.target?.files[0]))
+                    setError({...error,image:false})
+
                     setMovie({ ...movie, image: e?.target?.files[0] })
                   }}
                   className="w-[138px] "
                   hidden
                   type="file" />
               </div>
+              <p className="text-[#ff0000] text-xs w-[100%] flex justify-start ms-4">{error?.image ? "Please upload a image" : ""}</p>
             </div>
+
             <div className="flex flex-col items-stretch w-[42%] ml-5 max-md:w-full max-md:ml-0">
               <div className="flex flex-col items-stretch max-md:mt-10">
                 <div className="text-white text-center text-sm leading-6 whitespace-nowrap bg-cyan-900 justify-center pl-4 pr-16 py-5 rounded-xl items-start max-md:pr-5">
@@ -113,30 +132,36 @@ const Index = (props) => {
                     className="input"
                     value={movie?.title}
                     onChange={(e) => {
+                      setError({...error,title:false})
                       setMovie({ ...movie, title: e?.target?.value })
                     }}
                   />
                 </div>
+                <p className="text-[#ff0000] text-xs w-[100%] flex justify-start ms-4">{error?.title ? "Please enter a title" : ""}</p>
+
                 <div className="text-white text-center text-sm leading-6 bg-cyan-900 justify-center mt-6 pl-5 pr-16 py-4 rounded-xl items-start max-md:pr-5">
                   <label htmlFor="publishing-year">Publishing year</label>
                   <input
-                    type="text"
+                    type="number"
                     id="publishing-year"
                     aria-label="Publishing Year input"
                     value={movie?.publish_year}
 
                     className="input"
                     onChange={(e) => {
+                      setError({...error,publish_year:false})
                       setMovie({ ...movie, publish_year: e?.target?.value })
                     }}
                   />
                 </div>
+                <p className="text-[#ff0000] text-xs w-[100%] flex justify-start ms-4">{error?.publish_year ? "Please enter a valid publish year" : ""}</p>
+
                 <div className="flex items-stretch justify-between gap-4 mt-16 max-md:mt-10">
                   <button onClick={handleCancel} className="text-white  bg-cyan-900 text-center text-base font-bold leading-6 whitespace-nowrap justify-center items-stretch border grow px-14 py-6 rounded-xl border-solid border-white max-md:px-5">
                     Cancel
                   </button>
                   <button onClick={handleSubmit} className="text-white text-center text-base font-bold leading-6 whitespace-nowrap justify-center items-stretch bg-emerald-400 grow px-16 py-6 rounded-xl max-md:px-5">
-                  {router?.query?.id === "new" ? "Submit" : "Update"}
+                    {router?.query?.id === "new" ? "Submit" : "Update"}
                   </button>
                 </div>
               </div>

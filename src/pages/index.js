@@ -198,7 +198,7 @@ const Index = ({ movies }) => {
                 new Array(totalPages).fill(0).map((_, index) => (
                   <div onClick={() => {
                     setCurrentPage(index + 1)
-                  }} key={index} className="cursor-pointer text-white text-center text-base font-bold leading-6 whitespace-nowrap rounded bg-emerald-400 self-stretch aspect-square justify-center items-center h-8 px-3.5">
+                  }} key={index} className="pt-2 cursor-pointer text-white text-center text-base font-bold leading-6 whitespace-nowrap rounded bg-emerald-400 self-stretch aspect-square justify-center items-center h-8 px-3.5">
                     {index + 1}
                   </div>
 
@@ -241,7 +241,7 @@ export async function getServerSideProps({ req, res }) {
   const cookies = new Cookies(req.headers.cookie);
 
   const token = cookies.get("token");
-  const movies = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/movies`, {
+  const movies = await axios.get(`${process.env.NEXT_PUBLIC_API_URL||""}/movies`, {
     headers: {
       "Authorization": token
     }
