@@ -6,6 +6,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { API_URL } from "../../../config";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -36,7 +37,7 @@ const SignIn = () => {
     }else if(!password){
       err = {...err,password:true}
     }else {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users/login`, {
+      await axios.post(`${API_URL}/users/login`, {
         email, password
       }).then(res => {
         console.log("🚀 ~ file: index.jsx:41 ~ handleSubmit ~ res:", res)

@@ -3,6 +3,7 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
+import { API_URL } from "../../../../config";
 
 const Index = (props) => {
   const [movie, setMovie] = useState()
@@ -22,7 +23,7 @@ const Index = (props) => {
   }, [router?.query])
 
   const geOneMovie = async () => {
-    await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/movies/${router?.query?.id}`, {
+    await axios.get(`${API_URL}/movies/${router?.query?.id}`, {
       headers: {
         "Authorization": localStorage.getItem("token")
       }
@@ -31,7 +32,7 @@ const Index = (props) => {
         let data = { ...res?.data }
         delete data["image"]
         setMovie(data)
-        setImageUrl(`${process.env.NEXT_PUBLIC_API_URL}${res?.data?.image}`)
+        setImageUrl(`${API_URL}${res?.data?.image}`)
       }
     }).catch(err => {
 
@@ -39,6 +40,8 @@ const Index = (props) => {
   }
 
   const handleSubmit = async () => {
+
+
     let err = { ...error }
     if (!movie?.title || !movie?.publish_year || !imageUrl) {
       if (!movie?.title) {
@@ -60,7 +63,7 @@ const Index = (props) => {
       formdata.append("image", movie?.image)
     }
     if (router?.query?.id === "new") {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/movies/add`, formdata, { headers: { "Content-Type": "multipart/form-data", "Authorization": localStorage.getItem("token") } }).then(res => {
+      await axios.post(`${API_URL}/movies/add`, formdata, { headers: { "Content-Type": "multipart/form-data", "Authorization": localStorage.getItem("token") } }).then(res => {
         if (res?.status === 200) {
           router.push("/")
         }
@@ -70,7 +73,7 @@ const Index = (props) => {
       })
 
     } else {
-      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/movies/edit/${router?.query?.id}`, formdata, { headers: { "Content-Type": "multipart/form-data", "Authorization": localStorage.getItem("token") } }).then(res => {
+      await axios.put(`${API_URL}/movies/edit/${router?.query?.id}`, formdata, { headers: { "Content-Type": "multipart/form-data", "Authorization": localStorage.getItem("token") } }).then(res => {
         if (res?.status === 200) {
           router.push("/")
         }

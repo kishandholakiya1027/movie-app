@@ -22,7 +22,7 @@ const Index = ({ movies }) => {
 
   const getMovies = async () => {
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/movies?page=${currentPage}`, {
+      const res = await axios.get(`${API_URL}/movies?page=${currentPage}`, {
         headers: {
           "Authorization": localStorage.getItem("token")
         }
@@ -78,7 +78,7 @@ const Index = ({ movies }) => {
                         <div className="items-stretch backdrop-blur-[100px] bg-teal-950 flex flex-col pt-2 pb-6 px-2 rounded-xl">
                           <img
                             loading="lazy"
-                            srcSet={`${process.env.NEXT_PUBLIC_API_URL}${item?.image}`}
+                            srcSet={`${API_URL}${item?.image}`}
                             className="aspect-[0.67] object-contain object-center w-full overflow-hidden"
                           />
                           <div className="text-white text-xl font-medium leading-8 mt-6">
@@ -104,7 +104,7 @@ const Index = ({ movies }) => {
                         <div className="items-stretch backdrop-blur-[100px] bg-teal-950 flex flex-col pt-2 pb-6 px-2 rounded-xl">
                           <img
                             loading="lazy"
-                            srcSet={`${process.env.NEXT_PUBLIC_API_URL}${item?.image}`}
+                            srcSet={`${API_URL}${item?.image}`}
                             className="aspect-[0.67] object-contain object-center w-full overflow-hidden"
                           />
                           <div className="text-white text-xl font-medium leading-8 mt-6">
@@ -241,7 +241,7 @@ export async function getServerSideProps({ req, res }) {
   const cookies = new Cookies(req.headers.cookie);
 
   const token = cookies.get("token");
-  const movies = await axios.get(`${process.env.NEXT_PUBLIC_API_URL||""}/movies`, {
+  const movies = await axios.get(`${API_URL||""}/movies`, {
     headers: {
       "Authorization": token
     }
